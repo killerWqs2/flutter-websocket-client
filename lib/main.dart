@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_websocket_client/service/new_websocket.dart' show connect;
 
 void main() => runApp(MyApp());
 
@@ -47,13 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+    connect("ws://127.0.0.1:8080/terminal").then((stompClient) {
+      stompClient.subscribeString("123", "/topic/test", (Map<String, String> headers, String message) {
+        print("receive message: " + message);
+      });
+      stompClient.sendString("/app/test", "hello world");
+    }, onError: (error) {
+        print("connect failed");
     });
   }
 
